@@ -57,6 +57,8 @@ class FamilyManager(object):
     def setParents(self, childID, fatherID, motherID):
         self.family.setParents(childID, fatherID, motherID)
 
+    def getTreeString(self):
+      return self.family.getTreeString()
 
     def getMemberOverview(self):
         return self.family.getMemberOverview()
@@ -125,6 +127,50 @@ class Family(object):
     def getHouseholds(self):
       return self.households
 
+    def getFamilyFatherID(self):
+      res = 0
+
+      #pick household and check if father or mother has a parent, pick that
+      #parents' household until neither parent has a parent
+      if len(self.households) > 0:
+        rootH = self.getRootHousehold(self.households[0])
+        res = rootH.getFather().getID()
+
+
+      return res
+
+    def getChildsHousehold(self, childID):
+      res = None
+
+      for h in self.households:
+        if h.isChild(childID):
+          res = h
+
+      return res
+
+    def getRootHousehold(self, household):
+      res = household
+
+      fatherIsChild = self.isChild(household.getFather().getID())
+      motherIsChild = self.isChild(household.getMother().getID())
+
+      if fatherIsChild:
+        res = self.getChildsHousehold(household.getFather().getID())
+      elif motherIsChild:
+        res = self.getChildsHousehold(household.getMother().getID())
+
+
+      return res
+
+    def getHousehold(self, parentID):
+      res = None
+
+      for h in self.households:
+        if parentID in (h.getFather().getID(), h.getMother().getID()):
+          res = h
+
+      return res
+
     ##################################################
     #other functions
     ##################################################
@@ -157,7 +203,6 @@ class Family(object):
 
             if fid == fatherID and mid == motherID:
                 h.addChild(self.getMember(childID))
-
 
     ##################################################
     #family checkers
@@ -221,6 +266,42 @@ class Family(object):
     ##################################################
     #string functions
     ##################################################
+    def getIndentationString(self, level):
+      res = ""
+
+      for i in range(level):
+        res = res + "|\t"
+
+      return res + "+--"
+
+
+    def getTreeString(self, ID = 0, level = 0):
+      if ID == 0:
+        ID = self.getFamilyFatherID()
+
+      res = ""
+      rootHousehold = self.getHousehold(ID)
+      if rootHousehold == None:
+        name = self.getMember(ID).getName()
+        fName = self.getMember(ID).getFamilyName()
+        iString = self.getIndentationString(level)
+        res = res + iString + name + " " + fName + "\n"
+      else:
+        fatherN = rootHousehold.getFather().getName()
+        fatherFM = rootHousehold.getFather().getFamilyName()
+
+        motherN = rootHousehold.getMother().getName()
+        motherFN = rootHousehold.getMother().getFamilyName()
+
+        res = res + self.getIndentationString(level)
+
+        res = res + "%s %s X %s %s\n" % (fatherN, fatherFM, motherN, motherFN)
+
+        for child in rootHousehold.getChildren():
+          res = res + self.getTreeString(child.getID(), level + 1)
+
+      return res
+
     def getMemberOverview(self):
         res = "\n"
 

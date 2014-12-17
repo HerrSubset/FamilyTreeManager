@@ -24,6 +24,8 @@ class CLInterface(object):
       self.update()
     elif command == "add":
       self.addPerson()
+    elif command == "printTree":
+      self.printTree()
     else:
       assert False, "Unknown command"
 
@@ -54,3 +56,6 @@ class CLInterface(object):
     #TODO: check if other things can be added
 
     self.family.save()
+
+  def printTree(self):
+    print self.family.getTreeString()
