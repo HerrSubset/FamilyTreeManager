@@ -1,6 +1,7 @@
-import db
+import db, getopt
+import os.path
 
-###############################################################################
+################################################################################
 ################################################################################
 ################################################################################
 #FamilyManager class
@@ -11,12 +12,17 @@ class FamilyManager(object):
     ##################################################
     #constructor
     ##################################################
-    def __init__(self, family = None):
+    def __init__(self, parametersContainer = None, family = None,):
         if family == None:
             self.family = Family()
             self.writer = db.XMLWriter()
         else:
             self.family = family
+        if parametersContainer != None:
+          self.pc = parametersContainer
+
+        if self.pc != None and os.path.isfile(self.pc.getSavePath()) :
+          self.load(self.pc.getSavePath())
 
     ##################################################
     #getters
@@ -38,6 +44,8 @@ class FamilyManager(object):
         tmp = Person(tmpID, name, familyName, gender)
 
         self.family.addFamilyMember(tmp)
+        #return ID in case you want to add stuff to the new person
+        return tmpID
 
     def setAddress(self, pid, day, month, year):
         tmp = Address(day, month, year)
@@ -53,14 +61,17 @@ class FamilyManager(object):
     def getMemberOverview(self):
         return self.family.getMemberOverview()
 
+    def simplePrint(self):
+      return self.family.toStringSimple()
+
     def extensivePrint(self):
         return self.family.toString()
 
     def save(self):
-      self.writer.save(self.family.getMembers(), self.family.getHouseholds())
-      
-    def load(self):
-      self.family = self.writer.load()
+      self.writer.save(self.family.getMembers(), self.family.getHouseholds(), self.pc.getSavePath())
+
+    def load(self, savePath):
+      self.family = self.writer.load(savePath)
 
 
 
@@ -214,10 +225,21 @@ class Family(object):
         res = "\n"
 
         for m in self.familyMembers:
-            tmp = "%d: %s %s\n" % (m.getID(), m.getName(), m.getFamilyName())
+            tmp = "%s %s (%d)\n" % (m.getName(), m.getFamilyName(), m.getID())
             res = res + tmp
 
         return res
+
+    def toStringSimple(self):
+      res = ""
+
+      for member in self.familyMembers:
+        res = res + member.toStringSimple()
+
+      for household in self.households:
+        res = res + household.toString()
+
+      return res
 
     def toString(self):
         res = ""
@@ -311,11 +333,11 @@ class Household(object):
         return res
 
     def toString(self):
-        fa = "\nFather:\t%s %s\n"%(self.father.getName(), self.father.getFamilyName())
-        mo = "Mother:\t%s %s\n"%(self.mother.getName(), self.mother.getFamilyName())
+        fa = "\nFather:\t%s"%(self.father.toStringSimple())
+        mo = "Mother:\t%s"%(self.mother.toStringSimple())
         ch = "Children:\n"
         for child in self.children:
-            tmp = "\t%s %s\n" % (child.getName(), child.getFamilyName())
+            tmp = "\t%s" % (child.toStringSimple())
             ch = ch + tmp
 
         return fa + mo + ch
@@ -376,6 +398,9 @@ class Person(object):
     ##################################################
     #other functions
     ##################################################
+    def toStringSimple(self):
+      return "%s %s (id: %d)\n" % (self.name, self.familyName, self.ID)
+
     def toString(self):
         nString = "\nName:\t\t%s\n" %(self.name)
         idString = "ID:\t\t%d\n" % (self.getID())
@@ -482,3 +507,120 @@ class Date(object):
     def toString(self):
         res = "%d/%d/%d" %(self.day, self.month, self.year)
         return res
+
+
+
+################################################################################
+################################################################################
+################################################################################
+#ParametersContainer
+################################################################################
+################################################################################
+################################################################################
+class ParametersContainer(object):
+  def __init__(self, arg):
+    self.arguments = self.buildArguments(arg)
+
+  def buildArguments(self, arg):
+    res = {}
+
+    #set defaults
+    res["savePath"] = "./family.xml"
+
+    try:
+      opts, args = getopt.getopt(arg[1:], "n:f:i:d:m:g:F:")
+    except getopt.GetoptError as err:
+      # print help information and exit:
+      print str(err)
+      sys.exit(2)
+
+
+    for o,a in opts:
+      if o == "-n":
+        res["name"] = a
+      elif o == "-f":
+        res["familyname"] = a
+      elif o == "-i":
+        res["id"] = int(a)
+      elif o == "-d":
+        res["fatherID"] = int(a)
+      elif o == "-m":
+        res["motherID"] = int(a)
+      elif o == "-g":
+        res["gender"] = a
+      elif o == "-F":
+        res["savePath"] = a
+      else:
+        print "gave option" + o
+        assert False, "Unhandeled option"
+
+    try:
+      res["command"] = args[0]
+    except IndexError as err:
+      print "No command given"
+      print "exiting"
+      exit(2)
+
+    return res
+
+  ##################################################
+  #getters
+  ##################################################
+  def getName(self):
+    res = None
+
+    try:
+      res = self.arguments["name"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getFamilyName(self):
+    res = None
+    try:
+      res = self.arguments["familyname"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getID(self):
+    res = None
+    try:
+      res = self.arguments["id"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getGender(self):
+    res = None
+    try:
+      res = self.arguments["gender"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getMotherID(self):
+    res = None
+    try:
+      res = self.arguments["motherID"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getFatherID(self):
+    res = None
+    try:
+      res = self.arguments["fatherID"]
+    except KeyError as err:
+      res = None
+
+    return res
+  def getCommand(self):
+    return self.arguments["command"]
+  def getSavePath(self):
+    return self.arguments["savePath"]

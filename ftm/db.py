@@ -11,7 +11,7 @@ class XMLWriter(object):
     def __init__(self):
       pass
 
-    def load(self, savePath = "./family.xml"):
+    def load(self, savePath):
       tree = ET.parse(savePath)
       root = tree.getroot()
 
@@ -53,7 +53,7 @@ class XMLWriter(object):
 
 
 
-    def save(self, familyMembers, households, savePath = "./family.xml"):
+    def save(self, familyMembers, households, savePath):
       #TODO: split up the function
       root = ET.Element("Family")
       tree = ET.ElementTree()
