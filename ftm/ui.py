@@ -30,14 +30,34 @@ class CLInterface(object):
       assert False, "Unknown command"
 
   def simplePrint(self):
-    print self.family.simplePrint()
+    res = ""
+
+    #get filter variables
+    pid = self.pm.getID()
+    fid = self.pm.getFatherID()
+    mid = self.pm.getMotherID()
+
+    if pid != None:
+      res = self.family.getProfile(pid)
+
+    elif fid != None and mid != None:
+      res = self.family.getHouseholdProfile(fid, mid)
+
+    else:
+      res = self.family.simplePrint()
+
+    print res
 
   def update(self):
-    assert self.pm.getID() != None, "ID must be given when updating"
+    if self.pm.getID() != None :
+      if self.pm.getFatherID() != None and self.pm.getMotherID() != None:
+        self.family.setParents(self.pm.getID(), self.pm.getFatherID(), self.pm.getMotherID())
+        print "Added Parents"
 
-    if self.pm.getFatherID() != None and self.pm.getMotherID() != None:
-      self.family.setParents(self.pm.getID(), self.pm.getFatherID(), self.pm.getMotherID())
-      print "Added Parents"
+    else:
+      if self.pm.getFatherID() != None and self.pm.getMotherID() != None:
+        self.family.createCouple(self.pm.getFatherID(), self.pm.getMotherID())
+        print "Created Couple"
 
     self.family.save()
 

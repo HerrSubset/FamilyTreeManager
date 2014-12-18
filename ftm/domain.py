@@ -48,26 +48,35 @@ class FamilyManager(object):
         return tmpID
 
     def setAddress(self, pid, day, month, year):
-        tmp = Address(day, month, year)
-        p = self.family.getMember(pid)
+      tmp = Address(day, month, year)
+      p = self.family.getMember(pid)
 
-        if p != None:
-            p.setAddress(tmp)
+      if p != None:
+        p.setAddress(tmp)
 
     def setParents(self, childID, fatherID, motherID):
-        self.family.setParents(childID, fatherID, motherID)
+      self.family.setParents(childID, fatherID, motherID)
+
+    def createCouple(self, fatherID, motherID):
+      self.family.addHousehold(fatherID, motherID)
 
     def getTreeString(self):
       return self.family.getTreeString()
 
     def getMemberOverview(self):
-        return self.family.getMemberOverview()
+      return self.family.getMemberOverview()
+
+    def getProfile(self, pid):
+      return self.family.getProfile(pid)
+
+    def getHouseholdProfile(self, fid, mid):
+      return self.family.getHouseholdProfile(fid, mid)
 
     def simplePrint(self):
       return self.family.toStringSimple()
 
     def extensivePrint(self):
-        return self.family.toString()
+      return self.family.toString()
 
     def save(self):
       self.writer.save(self.family.getMembers(), self.family.getHouseholds(), self.pc.getSavePath())
@@ -171,6 +180,15 @@ class Family(object):
 
       return res
 
+    def getHousehold(self, fid, mid):
+      res = None
+
+      for h in self.households:
+        if mid == h.getMother().getID() and fid == h.getFather().getID():
+          res = h
+
+      return res
+
     ##################################################
     #other functions
     ##################################################
@@ -266,6 +284,14 @@ class Family(object):
     ##################################################
     #string functions
     ##################################################
+    def getProfile(self, pid):
+      member = self.getMember(pid)
+      return member.toString()
+
+    def getHouseholdProfile(self, fid, mid):
+      household = self.getHousehold(fid, mid)
+      return household.toString()
+
     def getIndentationString(self, level):
       res = ""
 
@@ -420,6 +446,7 @@ class Household(object):
         for child in self.children:
             tmp = "\t%s" % (child.toStringSimple())
             ch = ch + tmp
+
 
         return fa + mo + ch
 
@@ -609,7 +636,7 @@ class ParametersContainer(object):
     res["savePath"] = "./family.xml"
 
     try:
-      opts, args = getopt.getopt(arg[1:], "n:f:i:d:m:g:F:")
+      opts, args = getopt.getopt(arg[1:], "n:N:i:f:m:g:F:")
     except getopt.GetoptError as err:
       # print help information and exit:
       print str(err)
@@ -619,11 +646,11 @@ class ParametersContainer(object):
     for o,a in opts:
       if o == "-n":
         res["name"] = a
-      elif o == "-f":
+      elif o == "-N":
         res["familyname"] = a
       elif o == "-i":
         res["id"] = int(a)
-      elif o == "-d":
+      elif o == "-f":
         res["fatherID"] = int(a)
       elif o == "-m":
         res["motherID"] = int(a)
