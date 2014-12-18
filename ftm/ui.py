@@ -8,6 +8,9 @@ import domain as dom
 ################################################################################
 ################################################################################
 class CLInterface(object):
+  ##################################################
+  #Constructor
+  ##################################################
   def __init__(self, parametersContainer, family):
     self.pm = parametersContainer
     self.family = family
@@ -29,6 +32,10 @@ class CLInterface(object):
     else:
       assert False, "Unknown command"
 
+  ##################################################
+  #Command functions
+  ##################################################
+
   def simplePrint(self):
     res = ""
 
@@ -49,16 +56,30 @@ class CLInterface(object):
     print res
 
   def update(self):
-    if self.pm.getID() != None :
-      if self.pm.getFatherID() != None and self.pm.getMotherID() != None:
-        self.family.setParents(self.pm.getID(), self.pm.getFatherID(), self.pm.getMotherID())
+    #get parameter variables
+    pid = self.pm.getID()
+    fid = self.pm.getFatherID()
+    mid = self.pm.getMotherID()
+    startDateString = self.pm.getStartDateString()
+
+    #update person
+    if pid:
+      if fid and mid:
+        self.family.setParents(pid, fid, mid)
         print "Added Parents"
 
+      if startDateString:
+        tmp = startDateString.split("/")
+        self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
+        print "birthday added"
+
+    #update household
     else:
       if self.pm.getFatherID() != None and self.pm.getMotherID() != None:
         self.family.createCouple(self.pm.getFatherID(), self.pm.getMotherID())
         print "Created Couple"
 
+    #save changes
     self.family.save()
 
   def addPerson(self):
@@ -79,3 +100,9 @@ class CLInterface(object):
 
   def printTree(self):
     print self.family.getTreeString()
+
+  ##################################################
+  #Update functions
+  ##################################################
+  def setBirthday(self, pid, day, month, year):
+    self.family.addBirthday(pid, day, month, year)

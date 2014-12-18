@@ -26,8 +26,19 @@ class XMLWriter(object):
         i = int(p.find("ID").text)
         gender = p.find("Gender").text
 
-        #create and append person
+        #create person
         tmp = dom.Person(i, name, familyName, gender)
+
+        #look for additional info
+        birthDate = p.find("BirthDate")
+        bd = None
+        if birthDate != None:
+          bdString = birthDate.text
+          bdString = bdString.split("/")
+          bd = dom.Date(bdString[0], bdString[1], bdString[2])
+          tmp.setBirthDate(bd)
+
+        #append person
         familyMembers.append(tmp)
 
       #create households
@@ -79,6 +90,11 @@ class XMLWriter(object):
 
         gend = ET.SubElement(tmp, "Gender")
         gend.text = member.getGender()
+
+        dateObject = member.getBirthDate()
+        if dateObject:
+          date = ET.SubElement(tmp, "BirthDate")
+          date.text = dateObject.toString()
 
       #add the households
       for household in households:

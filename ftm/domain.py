@@ -47,12 +47,12 @@ class FamilyManager(object):
         #return ID in case you want to add stuff to the new person
         return tmpID
 
-    def setAddress(self, pid, day, month, year):
-      tmp = Address(day, month, year)
+    def addBirthday(self, pid, day, month, year):
       p = self.family.getMember(pid)
+      tmp = Date(day, month, year)
 
-      if p != None:
-        p.setAddress(tmp)
+      if p:
+        p.setBirthDate(tmp)
 
     def setParents(self, childID, fatherID, motherID):
       self.family.setParents(childID, fatherID, motherID)
@@ -171,7 +171,8 @@ class Family(object):
 
       return res
 
-    def getHousehold(self, parentID):
+    def getRelationships(self, parentID):
+      #TODO: return all the households in which parentID is a parent
       res = None
 
       for h in self.households:
@@ -306,7 +307,7 @@ class Family(object):
         ID = self.getFamilyFatherID()
 
       res = ""
-      rootHousehold = self.getHousehold(ID)
+      rootHousehold = self.getRelationships(ID)
       if rootHousehold == None:
         name = self.getMember(ID).getName()
         fName = self.getMember(ID).getFamilyName()
@@ -513,11 +514,11 @@ class Person(object):
         nString = "\nName:\t\t%s\n" %(self.name)
         idString = "ID:\t\t%d\n" % (self.getID())
         fnString = "Family Name:\t%s\n" % (self.familyName)
-        if not (self.birthDate == None):
+        if self.birthDate != None:
             bdString = "Birthday:\t%s\n" % (self.getBirthDate().toString())
         else:
             bdString = ""
-        if not (self.address == None):
+        if self.address != None:
             adString = "Address:\t%s\n" % (self.getAddress().toString())
         else:
             adString = ""
@@ -636,7 +637,7 @@ class ParametersContainer(object):
     res["savePath"] = "./family.xml"
 
     try:
-      opts, args = getopt.getopt(arg[1:], "n:N:i:f:m:g:F:")
+      opts, args = getopt.getopt(arg[1:], "n:N:i:f:m:g:F:d:")
     except getopt.GetoptError as err:
       # print help information and exit:
       print str(err)
@@ -658,6 +659,8 @@ class ParametersContainer(object):
         res["gender"] = a
       elif o == "-F":
         res["savePath"] = a
+      elif o == "-d":
+        res["startDateString"] = a
       else:
         print "gave option" + o
         assert False, "Unhandeled option"
@@ -728,6 +731,16 @@ class ParametersContainer(object):
       res = None
 
     return res
+
+  def getStartDateString(self):
+    res = None
+    try:
+      res = self.arguments["startDateString"]
+    except KeyError as err:
+      res = None
+
+    return res
+
   def getCommand(self):
     return self.arguments["command"]
   def getSavePath(self):
