@@ -159,14 +159,17 @@ class Family(object):
 
     def getRootHousehold(self, household):
       res = household
+      go = True
+
 
       fatherIsChild = self.isChild(household.getFather().getID())
       motherIsChild = self.isChild(household.getMother().getID())
-
       if fatherIsChild:
-        res = self.getChildsHousehold(household.getFather().getID())
+        tmp = self.getChildsHousehold(household.getFather().getID())
+        res = self.getRootHousehold(tmp)
       elif motherIsChild:
-        res = self.getChildsHousehold(household.getMother().getID())
+        tmp = self.getChildsHousehold(household.getMother().getID())
+        res = self.getRootHousehold(tmp)
 
 
       return res
