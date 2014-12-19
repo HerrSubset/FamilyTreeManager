@@ -66,12 +66,12 @@ class CLInterface(object):
     if pid:
       if fid and mid:
         self.family.setParents(pid, fid, mid)
-        print "Added Parents"
+        print "Parents updated"
 
       if startDateString:
         tmp = startDateString.split("/")
         self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
-        print "birthday added"
+        print "birthday updated"
 
     #update household
     else:

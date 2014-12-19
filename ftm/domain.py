@@ -159,14 +159,17 @@ class Family(object):
 
     def getRootHousehold(self, household):
       res = household
-      go = True
 
-
+      #create variables for easier reading
       fatherIsChild = self.isChild(household.getFather().getID())
       motherIsChild = self.isChild(household.getMother().getID())
+
+      #check which parent has parents. Continue searching on the branch where
+      #parents exist. If neither have parents you found the root houshold
       if fatherIsChild:
         tmp = self.getChildsHousehold(household.getFather().getID())
         res = self.getRootHousehold(tmp)
+
       elif motherIsChild:
         tmp = self.getChildsHousehold(household.getMother().getID())
         res = self.getRootHousehold(tmp)
@@ -227,7 +230,7 @@ class Family(object):
                 h.addChild(self.getMember(childID))
 
     ##################################################
-    #family checkers
+    #family boolean checkers
     ##################################################
     def isFatherOf(self, childID, fatherID):
         res = false
@@ -306,16 +309,23 @@ class Family(object):
 
 
     def getTreeString(self, ID = 0, level = 0):
+      res = ""
+
+      #if an ID is given, create tree from there. Otherwise look for family root
       if ID == 0:
         ID = self.getFamilyFatherID()
 
-      res = ""
+      #get household you're currently printing
       rootHousehold = self.getRelationships(ID)
+
+      #if current id has no family, simply print the name
       if rootHousehold == None:
         name = self.getMember(ID).getName()
         fName = self.getMember(ID).getFamilyName()
         iString = self.getIndentationString(level)
         res = res + iString + name + " " + fName + "\n"
+
+      #otherwise print the entire household
       else:
         fatherN = rootHousehold.getFather().getName()
         fatherFM = rootHousehold.getFather().getFamilyName()
@@ -638,9 +648,16 @@ class ParametersContainer(object):
 
     #set defaults
     res["savePath"] = "./family.xml"
+    try:
+      res["command"] = arg[1]
+      #TODO: check if command is valid
+    except IndexError as err:
+      print "No command given"
+      print "exiting"
+      exit(2)
 
     try:
-      opts, args = getopt.getopt(arg[1:], "n:N:i:f:m:g:F:d:")
+      opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:")
     except getopt.GetoptError as err:
       # print help information and exit:
       print str(err)
@@ -667,13 +684,6 @@ class ParametersContainer(object):
       else:
         print "gave option" + o
         assert False, "Unhandeled option"
-
-    try:
-      res["command"] = args[0]
-    except IndexError as err:
-      print "No command given"
-      print "exiting"
-      exit(2)
 
     return res
 
