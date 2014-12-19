@@ -544,7 +544,7 @@ class Person(object):
       return "%s %s (id: %d)\n" % (self.name, self.familyName, self.ID)
 
     def toString(self):
-        nString = "\nName:\t\t%s\n" %(self.name)
+        nString = "Name:\t\t%s\n" %(self.name)
         idString = "ID:\t\t%d\n" % (self.getID())
         fnString = "Family Name:\t%s\n" % (self.familyName)
         if self.birthDate != None:
@@ -556,7 +556,7 @@ class Person(object):
         else:
             adString = ""
         gnString = "Gender:\t\t%s\n" % (self.getGender())
-        return nString + idString + fnString + bdString + adString + gnString
+        return idString + nString + fnString + bdString + adString + gnString
 
 
 

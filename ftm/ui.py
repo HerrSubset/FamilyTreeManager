@@ -68,13 +68,10 @@ class CLInterface(object):
     #update person
     if pid:
       if fid and mid:
-        self.family.setParents(pid, fid, mid)
-        print "Parents updated"
+        self.updateParents(pid, fid, mid)
 
       if startDateString:
-        tmp = startDateString.split("/")
-        self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
-        print "birthday updated"
+        self.updateBirthday(pid, startDateString)
 
     #update household
     else:
@@ -91,18 +88,27 @@ class CLInterface(object):
     self.family.save()
 
   def addPerson(self):
+    #get info
     name = self.pm.getName()
     familyName = self.pm.getFamilyName()
     gender = self.pm.getGender()
+    startDateString = self.pm.getStartDateString()
+    fid = self.pm.getFatherID()
+    mid = self.pm.getMotherID()
 
     assert name != None, "Name is needed when adding person"
     assert familyName != None, "Family name is needed when adding person"
     assert gender != None, "Gender is needed when adding person"
 
-    tmpID = self.family.addFamilyMember(name, familyName, gender)
+    #get id from created person to add additional info, if given
+    pid = self.family.addFamilyMember(name, familyName, gender)
     print "created new person"
 
-    #TODO: check if other things can be added
+    if fid and mid:
+      self.updateParents(pid, fid, mid)
+
+    if startDateString:
+      self.updateBirthday(pid, startDateString)
 
     self.family.save()
 
@@ -117,3 +123,12 @@ class CLInterface(object):
 
   def setWeddingDate(self, fid, mid, day, month, year):
     self.family.addWeddingDate(fid, mid, day, month, year)
+
+  def updateParents(self, pid, fid, mid):
+    self.family.setParents(pid, fid, mid)
+    print "Parents updated"
+
+  def updateBirthday(self, pid, bdString):
+    tmp = bdString.split("/")
+    self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
+    print "birthday updated"
