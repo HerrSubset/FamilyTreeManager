@@ -700,6 +700,35 @@ class Date(object):
 
 
 
+
+
+################################################################################
+################################################################################
+################################################################################
+#ParametersContainer
+################################################################################
+################################################################################
+################################################################################
+class Event(object):
+  ##################################################
+  #Constructor
+  ##################################################
+  def __init__(self, description, date):
+    self.description = description
+    self.date = date
+
+  ##################################################
+  #Getters
+  ##################################################
+  def getDescription(self):
+    return self.description
+  def getDate(self):
+    return self.date
+
+
+
+
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -724,6 +753,7 @@ class ParametersContainer(object):
       print "exiting"
       exit(2)
 
+    #process arg variable
     try:
       opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:D:")
     except getopt.GetoptError as err:
@@ -731,7 +761,7 @@ class ParametersContainer(object):
       print str(err)
       sys.exit(2)
 
-
+    #extract parameters
     for o,a in opts:
       if o == "-n":
         res["name"] = a
@@ -754,6 +784,11 @@ class ParametersContainer(object):
       else:
         print "gave option" + o
         assert False, "Unhandeled option"
+
+    try:
+      res["secondCommand"] = args[0]
+    except IndexError as err:
+      pass
 
     return res
 
@@ -828,6 +863,15 @@ class ParametersContainer(object):
     res = None
     try:
       res = self.arguments["endDateString"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getSecondCommand(self):
+    res = None
+    try:
+      res = self.arguments["secondCommand"]
     except KeyError as err:
       res = None
 

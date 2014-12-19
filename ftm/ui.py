@@ -27,8 +27,6 @@ class CLInterface(object):
       self.update()
     elif command == "add":
       self.addPerson()
-    elif command == "printTree":
-      self.printTree()
     else:
       assert False, "Unknown command"
 
@@ -43,6 +41,7 @@ class CLInterface(object):
     pid = self.pm.getID()
     fid = self.pm.getFatherID()
     mid = self.pm.getMotherID()
+    secondCommand = self.pm.getSecondCommand()
 
     #if person id is given, print person profile
     if pid:
@@ -51,6 +50,15 @@ class CLInterface(object):
     #if father and mother are given, print household profile
     elif fid != None and mid != None:
       res = self.family.getHouseholdProfile(fid, mid)
+
+    #see if a special print command is given
+    elif secondCommand:
+      if secondCommand == "tree":
+        print self.family.getTreeString()
+
+      if secondCommand == "chronology":
+        eventArray = self.family.getChronology()
+        self.printChronology(eventArray)
 
     #if nothing is given, print family overview
     else:
@@ -123,9 +131,6 @@ class CLInterface(object):
 
     self.family.save()
 
-  def printTree(self):
-    print self.family.getTreeString()
-
   ##################################################
   #Update functions
   ##################################################
@@ -153,3 +158,9 @@ class CLInterface(object):
     tmp = divorceDate.split("/")
     self.family.setDivorceDate(fid, mid, tmp[0], tmp[1], tmp[2])
     print "Divorce date updated"
+
+  ##################################################
+  #Update functions
+  ##################################################
+  def printChronology(self, eventArray):
+    pass
