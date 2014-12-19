@@ -61,6 +61,13 @@ class FamilyManager(object):
       if p:
         p.setPassingDate(tmp)
 
+    def setDivorceDate(self, fid, mid, day, month, year):
+      h = self.family.getHousehold(fid, mid)
+      tmp = Date(day, month, year)
+
+      if h:
+        h.setDivorceDate(tmp)
+
     def addWeddingDate(self, fid, mid, day, month, year):
       h = self.family.getHousehold(fid, mid)
       tmp = Date(day, month, year)
@@ -426,6 +433,7 @@ class Household(object):
     self.mother = mother
     self.children = children
     self.weddingDate = None
+    self.divorceDate =None
 
   ##################################################
   #getters
@@ -438,12 +446,16 @@ class Household(object):
     return self.children
   def getWeddingDate(self):
     return self.weddingDate
+  def getDivorceDate(self):
+    return self.divorceDate
 
   ##################################################
   #setters
   ##################################################
   def setWeddingDate(self, weddingDate):
     self.weddingDate = weddingDate
+  def setDivorceDate(self, divorceDate):
+    self.divorceDate = divorceDate
 
   ##################################################
   #other functions
@@ -484,12 +496,16 @@ class Household(object):
     if self.weddingDate:
       we = "Wedding Date:\t%s\n" % (self.weddingDate.toString())
 
+    di = ""
+    if self.divorceDate:
+      di = "Divorce Date:\t%s\n" % (self.divorceDate.toString())
+
     ch = "Children:\n"
     for child in self.children:
       tmp = "\t\t%s" % (child.toStringSimple())
       ch = ch + tmp
 
-    return fa + mo + we + ch
+    return fa + mo + we + di + ch
 
 
 

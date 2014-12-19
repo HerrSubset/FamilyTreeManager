@@ -88,6 +88,9 @@ class CLInterface(object):
         self.setWeddingDate(fid, mid, tmp[0], tmp[1], tmp[2])
         print "wedding date updated"
 
+      if endDateString:
+        self.updateDivorceDate(fid, mid, endDateString)
+
     #save changes
     self.family.save()
 
@@ -139,9 +142,14 @@ class CLInterface(object):
   def updateBirthday(self, pid, bdString):
     tmp = bdString.split("/")
     self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
-    print "birthday updated"
+    print "Birthday updated"
 
   def updatePassingDate(self, pid, passingDate):
     tmp = passingDate.split("/")
     self.family.setPassingDay(pid, tmp[0], tmp[1], tmp[2])
-    print "Passing day updated"
+    print "Passing date updated"
+
+  def updateDivorceDate(self, fid, mid, divorceDate):
+    tmp = divorceDate.split("/")
+    self.family.setDivorceDate(fid, mid, tmp[0], tmp[1], tmp[2])
+    print "Divorce date updated"

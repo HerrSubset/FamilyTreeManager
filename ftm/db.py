@@ -69,6 +69,13 @@ class XMLWriter(object):
           wd = dom.Date(wdString[0], wdString[1], wdString[2])
           household.setWeddingDate(wd)
 
+        divorceDate = h.find("DivorceDate")
+        if divorceDate != None:
+          ddString = divorceDate.text
+          ddString = ddString.split("/")
+          dd = dom.Date(ddString[0], ddString[1], ddString[2])
+          household.setDivorceDate(dd)
+
         #append household
         households.append(household)
 
@@ -134,6 +141,12 @@ class XMLWriter(object):
         if dateObject:
           date = ET.SubElement(tmp, "WeddingDate")
           date.text = dateObject.toString()
+
+        #add divorce date if present
+        dateObject = household.getDivorceDate()
+        if dateObject:
+          divorceDate = ET.SubElement(tmp, "DivorceDate")
+          divorceDate.text = dateObject.toString()
 
         children = ET.SubElement(tmp, "Children")
 
