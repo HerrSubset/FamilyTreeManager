@@ -59,7 +59,7 @@ class XMLWriter(object):
         if weddingDate != None:
           wdString = weddingDate.text
           wdString = wdString.split("/")
-          wd = dom.Date(bdString[0], bdString[1], bdString[2])
+          wd = dom.Date(wdString[0], wdString[1], wdString[2])
           household.setWeddingDate(wd)
 
         #append household
