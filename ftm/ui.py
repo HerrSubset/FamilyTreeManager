@@ -64,6 +64,7 @@ class CLInterface(object):
     fid = self.pm.getFatherID()
     mid = self.pm.getMotherID()
     startDateString = self.pm.getStartDateString()
+    endDateString = self.pm.getEndDateString()
 
     #update person
     if pid:
@@ -72,6 +73,9 @@ class CLInterface(object):
 
       if startDateString:
         self.updateBirthday(pid, startDateString)
+
+      if endDateString:
+        self.updatePassingDate(pid, endDateString)
 
     #update household
     else:
@@ -93,6 +97,7 @@ class CLInterface(object):
     familyName = self.pm.getFamilyName()
     gender = self.pm.getGender()
     startDateString = self.pm.getStartDateString()
+    endDateString = self.pm.getEndDateString()
     fid = self.pm.getFatherID()
     mid = self.pm.getMotherID()
 
@@ -109,6 +114,9 @@ class CLInterface(object):
 
     if startDateString:
       self.updateBirthday(pid, startDateString)
+
+    if endDateString:
+      self.updatePassingDate(pid, endDateString)
 
     self.family.save()
 
@@ -132,3 +140,8 @@ class CLInterface(object):
     tmp = bdString.split("/")
     self.setBirthday(pid, tmp[0], tmp[1], tmp[2])
     print "birthday updated"
+
+  def updatePassingDate(self, pid, passingDate):
+    tmp = passingDate.split("/")
+    self.family.setPassingDay(pid, tmp[0], tmp[1], tmp[2])
+    print "Passing day updated"

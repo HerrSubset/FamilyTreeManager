@@ -54,6 +54,13 @@ class FamilyManager(object):
       if p:
         p.setBirthDate(tmp)
 
+    def setPassingDay(self, pid, day, month, year):
+      p = self.family.getMember(pid)
+      tmp = Date(day, month, year)
+
+      if p:
+        p.setPassingDate(tmp)
+
     def addWeddingDate(self, fid, mid, day, month, year):
       h = self.family.getHousehold(fid, mid)
       tmp = Date(day, month, year)
@@ -503,6 +510,7 @@ class Person(object):
         self.name = name
         self.familyName = familyName
         self.birthDate = birthDate
+        self.passingDate = None
         self.address = address
         self.gender = gender
         self.ID = int(ID)
@@ -511,31 +519,35 @@ class Person(object):
     #getters
     ##################################################
     def getName(self):
-        return self.name
+      return self.name
     def getFamilyName(self):
-        return self.familyName
+      return self.familyName
     def getBirthDate(self):
-        return self.birthDate
+      return self.birthDate
+    def getPassingDate(self):
+      return self.passingDate
     def getAddress(self):
-        return self.address
+      return self.address
     def getGender(self):
-        return self.gender
+      return self.gender
     def getID(self):
-        return self.ID
+      return self.ID
 
     ##################################################
     #setters
     ##################################################
     def setGender(self, gender):
-        self.gender = gender
+      self.gender = gender
     def setAddress(self, address):
-        self.address = address
+      self.address = address
     def setBirthDate(self, birthDate):
-        self.birthDate = birthDate
+      self.birthDate = birthDate
+    def setPassingDate(self, passingDate):
+      self.passingDate = passingDate
     def setFamilyName(self, familyName):
-        self.familyName = familyName
+      self.familyName = familyName
     def setName(self, name):
-        self.name = name
+      self.name = name
 
     ##################################################
     #other functions
@@ -544,19 +556,26 @@ class Person(object):
       return "%s %s (id: %d)\n" % (self.name, self.familyName, self.ID)
 
     def toString(self):
-        nString = "Name:\t\t%s\n" %(self.name)
-        idString = "ID:\t\t%d\n" % (self.getID())
-        fnString = "Family Name:\t%s\n" % (self.familyName)
-        if self.birthDate != None:
-            bdString = "Birthday:\t%s\n" % (self.getBirthDate().toString())
-        else:
-            bdString = ""
-        if self.address != None:
-            adString = "Address:\t%s\n" % (self.getAddress().toString())
-        else:
-            adString = ""
-        gnString = "Gender:\t\t%s\n" % (self.getGender())
-        return idString + nString + fnString + bdString + adString + gnString
+      #basic variables
+      nString = "Name:\t\t%s\n" %(self.name)
+      idString = "ID:\t\t%d\n" % (self.getID())
+      fnString = "Family Name:\t%s\n" % (self.familyName)
+      bdString = ""
+      pString = ""
+      adString = ""
+
+      #fill in optional variables
+      if self.birthDate != None:
+        bdString = "Birthday:\t%s\n" % (self.getBirthDate().toString())
+
+      if self.passingDate != None:
+        pString = "Passed on:\t%s\n" % (self.getPassingDate().toString())
+
+      if self.address != None:
+        adString = "Address:\t%s\n" % (self.getAddress().toString())
+
+      gnString = "Gender:\t\t%s\n" % (self.getGender())
+      return idString + nString + fnString + bdString + pString + adString + gnString
 
 
 
@@ -647,8 +666,21 @@ class Date(object):
     #other functions
     ##################################################
     def toString(self):
-        res = "%d/%d/%d" %(self.day, self.month, self.year)
-        return res
+      day = ""
+      if self.day < 10:
+        day = "0%d" % (self.day)
+      else:
+        day = "%d" % (self.day)
+
+      month = ""
+      if self.month < 10:
+        month = "0%d" % (self.month)
+      else:
+        month = "%d" % (self.month)
+
+      year = "%d" % (self.year)
+
+      return "%s/%s/%s" % (day, month, year)
 
 
 
@@ -677,7 +709,7 @@ class ParametersContainer(object):
       exit(2)
 
     try:
-      opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:")
+      opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:D:")
     except getopt.GetoptError as err:
       # print help information and exit:
       print str(err)
@@ -701,6 +733,8 @@ class ParametersContainer(object):
         res["savePath"] = a
       elif o == "-d":
         res["startDateString"] = a
+      elif o == "-D":
+        res["endDateString"] = a
       else:
         print "gave option" + o
         assert False, "Unhandeled option"
@@ -769,6 +803,15 @@ class ParametersContainer(object):
     res = None
     try:
       res = self.arguments["startDateString"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getEndDateString(self):
+    res = None
+    try:
+      res = self.arguments["endDateString"]
     except KeyError as err:
       res = None
 

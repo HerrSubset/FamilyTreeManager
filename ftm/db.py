@@ -37,6 +37,13 @@ class XMLWriter(object):
           bd = dom.Date(bdString[0], bdString[1], bdString[2])
           tmp.setBirthDate(bd)
 
+        passingDate = p.find("PassingDate")
+        if passingDate != None:
+          pString = passingDate.text
+          pString = pString.split("/")
+          pd = dom.Date(pString[0], pString[1], pString[2])
+          tmp.setPassingDate(pd)
+
         #append person
         familyMembers.append(tmp)
 
@@ -104,6 +111,11 @@ class XMLWriter(object):
         if dateObject:
           date = ET.SubElement(tmp, "BirthDate")
           date.text = dateObject.toString()
+
+        passingDateObject = member.getPassingDate()
+        if passingDateObject:
+          passingDate = ET.SubElement(tmp, "PassingDate")
+          passingDate.text = passingDateObject.toString()
 
       #add the households
       for household in households:
