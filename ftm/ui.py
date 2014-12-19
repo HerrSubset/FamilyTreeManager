@@ -44,12 +44,15 @@ class CLInterface(object):
     fid = self.pm.getFatherID()
     mid = self.pm.getMotherID()
 
-    if pid != None:
+    #if person id is given, print person profile
+    if pid:
       res = self.family.getProfile(pid)
 
+    #if father and mother are given, print household profile
     elif fid != None and mid != None:
       res = self.family.getHouseholdProfile(fid, mid)
 
+    #if nothing is given, print family overview
     else:
       res = self.family.simplePrint()
 
@@ -79,6 +82,11 @@ class CLInterface(object):
         self.family.createCouple(self.pm.getFatherID(), self.pm.getMotherID())
         print "Created Couple"
 
+      if startDateString:
+        tmp = startDateString.split("/")
+        self.setWeddingDate(fid, mid, tmp[0], tmp[1], tmp[2])
+        print "wedding date updated"
+
     #save changes
     self.family.save()
 
@@ -106,3 +114,6 @@ class CLInterface(object):
   ##################################################
   def setBirthday(self, pid, day, month, year):
     self.family.addBirthday(pid, day, month, year)
+
+  def setWeddingDate(self, fid, mid, day, month, year):
+    self.family.addWeddingDate(fid, mid, day, month, year)

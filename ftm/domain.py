@@ -54,6 +54,13 @@ class FamilyManager(object):
       if p:
         p.setBirthDate(tmp)
 
+    def addWeddingDate(self, fid, mid, day, month, year):
+      h = self.family.getHousehold(fid, mid)
+      tmp = Date(day, month, year)
+
+      if h:
+        h.setWeddingDate(tmp)
+
     def setParents(self, childID, fatherID, motherID):
       self.family.setParents(childID, fatherID, motherID)
 
@@ -218,8 +225,13 @@ class Family(object):
         for ch in children:
             c.append(self.getMember(ch))
 
-        tmp = Household(f, m, c)
-        self.households.append(tmp)
+        h = self.getHousehold(fatherID, motherID)
+        if h == None:
+          tmp = Household(f, m, c)
+          self.households.append(tmp)
+        else:
+          pass
+          #TODO: throw error (couple already exists)
 
     def addChildToHousehold(self, childID, fatherID, motherID):
         for h in self.households:
@@ -399,70 +411,78 @@ class Family(object):
 ################################################################################
 ################################################################################
 class Household(object):
-    ##################################################
-    #constructor
-    ##################################################
-    def __init__(self, father = None, mother = None, children = []):
-        self.father = father
-        self.mother = mother
-        self.children = children
+  ##################################################
+  #constructor
+  ##################################################
+  def __init__(self, father = None, mother = None, children = []):
+    self.father = father
+    self.mother = mother
+    self.children = children
+    self.weddingDate = None
 
-    ##################################################
-    #getters
-    ##################################################
-    def getFather(self):
-        return self.father
-    def getMother(self):
-        return self.mother
-    def getChildren(self):
-        return self.children
+  ##################################################
+  #getters
+  ##################################################
+  def getFather(self):
+    return self.father
+  def getMother(self):
+    return self.mother
+  def getChildren(self):
+    return self.children
+  def getWeddingDate(self):
+    return self.weddingDate
 
-    ##################################################
-    #setters
-    ##################################################
+  ##################################################
+  #setters
+  ##################################################
+  def setWeddingDate(self, weddingDate):
+    self.weddingDate = weddingDate
 
+  ##################################################
+  #other functions
+  ##################################################
+  def addChild(self, child):
+    self.children.append(child)
 
-    ##################################################
-    #other functions
-    ##################################################
-    def addChild(self, child):
-        self.children.append(child)
+  def isChild(self, childID):
+    res = False
 
-    def isChild(self, childID):
-        res = False
+    for child in self.children:
+      if child.getID() == childID:
+        res = True
 
-        for child in self.children:
-            if child.getID() == childID:
-                res = True
+    return res
 
-        return res
+  def isFatherOf(self, childID, fatherID):
+    res = False
 
-    def isFatherOf(self, childID, fatherID):
-        res = False
+    if self.isChild(childID) and self.father.getID() == fatherID:
+      res = True
 
-        if self.isChild(childID) and self.father.getID() == fatherID:
-                res = True
+    return res
 
-        return res
+  def isMotherOf(self, childID, motherID):
+    res = False
 
-    def isMotherOf(self, childID, motherID):
-        res = False
+    if self.isChild(childID) and self.mother.getID() == motherID:
+      res = True
 
-        if self.isChild(childID) and self.mother.getID() == motherID:
-            res = True
+    return res
 
-        return res
+  def toString(self):
+    fa = "\nFather:\t\t%s"%(self.father.toStringSimple())
+    mo = "Mother:\t\t%s"%(self.mother.toStringSimple())
 
-    def toString(self):
-        fa = "\nFather:\t%s"%(self.father.toStringSimple())
-        mo = "Mother:\t%s"%(self.mother.toStringSimple())
-        ch = "Children:\n"
-        for child in self.children:
-            tmp = "\t%s" % (child.toStringSimple())
-            ch = ch + tmp
+    we = ""
+    if self.weddingDate:
+      we = "Wedding Date:\t%s\n" % (self.weddingDate.toString())
 
+    ch = "Children:\n"
+    for child in self.children:
+      tmp = "\t\t%s" % (child.toStringSimple())
+      ch = ch + tmp
 
-        return fa + mo + ch
+    return fa + mo + we + ch
 
 
 

@@ -31,7 +31,6 @@ class XMLWriter(object):
 
         #look for additional info
         birthDate = p.find("BirthDate")
-        bd = None
         if birthDate != None:
           bdString = birthDate.text
           bdString = bdString.split("/")
@@ -52,8 +51,18 @@ class XMLWriter(object):
           c = self.getPerson(int(child.text), familyMembers)
           children.append(c)
 
-        #create and append household
+        #create household
         household = dom.Household(father, mother, children)
+
+        #add wedding date if given
+        weddingDate = h.find("WeddingDate")
+        if weddingDate != None:
+          wdString = weddingDate.text
+          wdString = wdString.split("/")
+          wd = dom.Date(bdString[0], bdString[1], bdString[2])
+          household.setWeddingDate(wd)
+
+        #append household
         households.append(household)
 
       family = dom.Family()
@@ -107,6 +116,12 @@ class XMLWriter(object):
 
         mother = ET.SubElement(tmp, "MotherID")
         mother.text = "%d" % (household.getMother().getID())
+
+        #add wedding date if present
+        dateObject = household.getWeddingDate()
+        if dateObject:
+          date = ET.SubElement(tmp, "WeddingDate")
+          date.text = dateObject.toString()
 
         children = ET.SubElement(tmp, "Children")
 
