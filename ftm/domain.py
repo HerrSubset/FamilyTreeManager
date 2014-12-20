@@ -39,6 +39,12 @@ class FamilyManager(object):
     ##################################################
     #other functions
     ##################################################
+    def addEvent(self, name, day, month, year):
+      d = Date(day, month, year)
+      e = Event(name, d)
+
+      self.family.addEvent(e)
+
     def addFamilyMember(self, name, familyName, gender):
         tmpID = self.family.getNextID()
         tmp = Person(tmpID, name, familyName, gender)
@@ -106,7 +112,11 @@ class FamilyManager(object):
       return self.family.toString()
 
     def save(self):
-      self.writer.save(self.family.getMembers(), self.family.getHouseholds(), self.pc.getSavePath())
+      memb = self.family.getMembers()
+      hous = self.family.getHouseholds()
+      even = self.family.getEvents()
+      path = self.pc.getSavePath()
+      self.writer.save(memb, hous, even, path)
 
     def load(self, savePath):
       self.family = self.writer.load(savePath)
@@ -127,6 +137,7 @@ class Family(object):
     def __init__(self):
         self.familyMembers = []
         self.households = []
+        self.events = []
 
     ##################################################
     #setters
@@ -135,10 +146,19 @@ class Family(object):
       self.familyMembers = familyMembers
     def setHouseholds(self, households):
       self.households = households
+    def setEvents(self, events):
+      self.events = events
 
     ##################################################
     #getters
     ##################################################
+    def getMembers(self):
+      return self.familyMembers
+    def getHouseholds(self):
+      return self.households
+    def getEvents(self):
+      return self.events
+
     def getMember(self, pid):
         res = None
 
@@ -156,12 +176,6 @@ class Family(object):
                 res = m.getID() + 1
 
         return res
-
-    def getMembers(self):
-      return self.familyMembers
-
-    def getHouseholds(self):
-      return self.households
 
     def getFamilyFatherID(self):
       res = 0
@@ -250,6 +264,9 @@ class Family(object):
           e = Event(coupleString, weddingDate)
           res.append(e)
 
+      for event in self.events:
+        res.append(event)
+
       res = self.sortEvents(res)
       return res
 
@@ -276,6 +293,9 @@ class Family(object):
     ##################################################
     #other functions
     ##################################################
+    def addEvent(self, e):
+      self.events.append(e)
+
     def addFamilyMember(self, p):
         #TODO: build in checks to see if person isn't added already and that the
         #thing added is actually a person
@@ -766,13 +786,18 @@ class Date(object):
     #Getters
     ##################################################
     def getDay(self):
-        return self.day
+      return self.day
 
     def getMonth(self):
-        return self.month
+      return self.month
 
     def getYear(self):
-        return self.year
+      return self.year
+
+    def getDecennium(self):
+      res = self.year - ((self.year/1000)*1000)
+      res = res - ((self.year/100)*100)
+      res = res / 10 * 10
 
     ##################################################
     #other functions

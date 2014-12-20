@@ -26,7 +26,7 @@ class CLInterface(object):
     elif command == "update":
       self.update()
     elif command == "add":
-      self.addPerson()
+      self.add()
     else:
       assert False, "Unknown command"
 
@@ -106,7 +106,7 @@ class CLInterface(object):
     #save changes
     self.family.save()
 
-  def addPerson(self):
+  def add(self):
     #get info
     name = self.pm.getName()
     familyName = self.pm.getFamilyName()
@@ -116,22 +116,28 @@ class CLInterface(object):
     fid = self.pm.getFatherID()
     mid = self.pm.getMotherID()
 
-    assert name != None, "Name is needed when adding person"
-    assert familyName != None, "Family name is needed when adding person"
-    assert gender != None, "Gender is needed when adding person"
 
-    #get id from created person to add additional info, if given
-    pid = self.family.addFamilyMember(name, familyName, gender)
-    print "created new person"
+    if name and familyName and gender:
+      #get id from created person to add additional info, if given
+      pid = self.family.addFamilyMember(name, familyName, gender)
+      print "Created new person"
 
-    if fid and mid:
-      self.updateParents(pid, fid, mid)
+      if fid and mid:
+        self.updateParents(pid, fid, mid)
 
-    if startDateString:
-      self.updateBirthday(pid, startDateString)
+      if startDateString:
+        self.updateBirthday(pid, startDateString)
 
-    if endDateString:
-      self.updatePassingDate(pid, endDateString)
+      if endDateString:
+        self.updatePassingDate(pid, endDateString)
+
+    elif name and startDateString:
+      tmp = startDateString.split("/")
+      self.family.addEvent(name, tmp[0], tmp[1], tmp[2])
+      print "Event added"
+
+    else:
+      print "Didn't know what to do"
 
     self.family.save()
 

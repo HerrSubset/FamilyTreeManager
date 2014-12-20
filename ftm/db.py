@@ -17,6 +17,7 @@ class XMLWriter(object):
 
       familyMembers = []
       households = []
+      events = []
 
       #create family members
       for p in root.iter("Person"):
@@ -79,21 +80,34 @@ class XMLWriter(object):
         #append household
         households.append(household)
 
+      for e in root.iter("Event"):
+        date = e.get("date")
+        date = date.split("/")
+        dateObject = dom.Date(date[0], date[1], date[2])
+
+        description = e.get("description")
+
+        event = dom.Event(description, dateObject)
+        events.append(event)
+
+
       family = dom.Family()
       family.setFamilyMembers(familyMembers)
       family.setHouseholds(households)
+      family.setEvents(events)
 
       return family
 
 
 
-    def save(self, familyMembers, households, savePath):
+    def save(self, familyMembers, households, events, savePath):
       #TODO: split up the function
       root = ET.Element("Family")
       tree = ET.ElementTree()
       tree._setroot(root)
 
       m = ET.SubElement(root, "Members")
+      e = ET.SubElement(root, "Events")
       h = ET.SubElement(root, "Households")
 
       #add the family members
@@ -154,6 +168,12 @@ class XMLWriter(object):
         for child in household.getChildren():
           childTmp = ET.SubElement(children, "ChildID")
           childTmp.text = "%d" %(child.getID())
+
+      for event in events:
+        tmp = ET.SubElement(e, "Event")
+
+        tmp.set("date", event.getDate().toString())
+        tmp.set("description", event.getDescription())
 
       tree.write(savePath, "utf8", True)
 
