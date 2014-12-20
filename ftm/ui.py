@@ -60,6 +60,10 @@ class CLInterface(object):
         eventArray = self.family.getChronology()
         self.printChronology(eventArray)
 
+      if secondCommand == "calendar":
+        eventArray = self.family.getCalendar()
+        self.printCalendar(eventArray)
+
     #if nothing is given, print family overview
     else:
       res = self.family.simplePrint()
@@ -176,3 +180,10 @@ class CLInterface(object):
         currentDate = e.getDate().getYear()
 
       print s
+
+  def printCalendar(self, eventArray):
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    for i in range(12):
+      print "\n%s:" % (months[i])
+      for e in eventArray[i]:
+        print "%s %s %s" % (e.getDate().toString(), e.getSign(), e.getDescription())

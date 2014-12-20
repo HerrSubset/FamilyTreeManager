@@ -96,6 +96,9 @@ class FamilyManager(object):
     def getChronology(self):
       return self.family.getChronology()
 
+    def getCalendar(self):
+      return self.family.getCalendar()
+
     def simplePrint(self):
       return self.family.toStringSimple()
 
@@ -250,6 +253,26 @@ class Family(object):
       res = self.sortEvents(res)
       return res
 
+    def getCalendar(self):
+      res = []
+
+      #create empty array for every month
+      for i in range(0,12):
+        res.append([])
+
+      #get event list
+      events = self.getChronology()
+
+      #put events in correct month
+      for e in events:
+        res[e.getDate().getMonth() - 1].append(e)
+
+      #sort every month
+      for i in range(12):
+        res[i] = self.sortEventsWithoutYear(res[i])
+
+      return res
+
     ##################################################
     #other functions
     ##################################################
@@ -289,15 +312,32 @@ class Family(object):
                 h.addChild(self.getMember(childID))
 
     def sortEvents(self, events):
-      for i in range(0,len(events)):
-        for j in range(1, len(events)):
-          firstDate = events[j-1].getDate()
-          secondDate = events[j].getDate()
+      isSorted = False
+
+      while not isSorted:
+        isSorted = True
+        for i in range(len(events) - 1):
+          firstDate = events[i].getDate()
+          secondDate = events[i+1].getDate()
 
           if secondDate.isEarlierThan(firstDate):
-            tmp = events[j-1]
-            events[j-1] = events[j]
-            events[j] = tmp
+            isSorted = False
+            events[i], events[i+1] = events[i+1], events[i]
+
+      return events
+
+    def sortEventsWithoutYear(self, events):
+      isSorted = False
+
+      while not isSorted:
+        isSorted = True
+        for i in range(len(events) - 1):
+          firstDate = events[i].getDate()
+          secondDate = events[i+1].getDate()
+
+          if secondDate.fallsEarlierThan(firstDate):
+            isSorted = False
+            events[i], events[i+1] = events[i+1], events[i]
 
       return events
 
@@ -740,6 +780,9 @@ class Date(object):
     def asInteger(self):
       return (self.year * 10000) + (self.month * 100) + self.day
 
+    def asIntegerWithoutYear(self):
+      return (self.month * 100) + self.day
+
     def compare(self, d):
       return d.asInteger() - self.asInteger()
 
@@ -747,6 +790,14 @@ class Date(object):
       res = False
 
       if self.asInteger() < d.asInteger():
+        res = True
+
+      return res
+
+    def fallsEarlierThan(self, d):
+      res = False
+
+      if self.asIntegerWithoutYear() < d.asIntegerWithoutYear():
         res = True
 
       return res
