@@ -163,6 +163,16 @@ class CLInterface(object):
   #Update functions
   ##################################################
   def printChronology(self, eventArray):
+    currentDate = None
+
+    if eventArray[0]:
+      currentDate = eventArray[0].getDate().getYear()
+
     for e in eventArray:
-      s = "%s %s" % (e.getDate().toString(), e.getDescription())
+      s = "%s %s %s" % (e.getDate().toString(), e.getSign(), e.getDescription())
+
+      if not(e.getDate().getYear() == currentDate):
+        s = "\n" + s
+        currentDate = e.getDate().getYear()
+
       print s

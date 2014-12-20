@@ -229,13 +229,13 @@ class Family(object):
         passingDate = m.getPassingDate()
 
         if birthDate:
-          bdString = "o %s %s" % (m.getName(), m.getFamilyName())
-          bdEvent = Event(bdString, birthDate)
+          bdString = "%s %s" % (m.getName(), m.getFamilyName())
+          bdEvent = Event(bdString, birthDate, "o")
           res.append(bdEvent)
 
         if passingDate:
-          pdString = "+ %s %s" % (m.getName(), m.getFamilyName())
-          pdEvent = Event(pdString, passingDate)
+          pdString = "%s %s" % (m.getName(), m.getFamilyName())
+          pdEvent = Event(pdString, passingDate, "+")
           res.append(pdEvent)
 
 
@@ -783,10 +783,10 @@ class Event(object):
   ##################################################
   #Constructor
   ##################################################
-  def __init__(self, description, date):
+  def __init__(self, description, date, sign = " "):
     self.description = description
-    assert type(self.description) is str, "description is not a string"
     self.date = date
+    self.sign = sign
 
   ##################################################
   #Getters
@@ -795,6 +795,8 @@ class Event(object):
     return self.description
   def getDate(self):
     return self.date
+  def getSign(self):
+    return self.sign
 
 
 
