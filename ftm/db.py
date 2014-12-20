@@ -22,26 +22,24 @@ class XMLWriter(object):
       #create family members
       for p in root.iter("Person"):
         #collect data
-        name = p.find("Name").text
-        familyName = p.find("Familyname").text
-        i = int(p.find("ID").text)
-        gender = p.find("Gender").text
+        name = p.get("name")
+        familyName = p.get("familyName")
+        i = int(p.get("id"))
+        gender = p.get("gender")
 
         #create person
         tmp = dom.Person(i, name, familyName, gender)
 
         #look for additional info
-        birthDate = p.find("BirthDate")
+        birthDate = p.get("birthDate")
         if birthDate != None:
-          bdString = birthDate.text
-          bdString = bdString.split("/")
+          bdString = birthDate.split("/")
           bd = dom.Date(bdString[0], bdString[1], bdString[2])
           tmp.setBirthDate(bd)
 
-        passingDate = p.find("PassingDate")
+        passingDate = p.get("passingDate")
         if passingDate != None:
-          pString = passingDate.text
-          pString = pString.split("/")
+          pString = passingDate.split("/")
           pd = dom.Date(pString[0], pString[1], pString[2])
           tmp.setPassingDate(pd)
 
@@ -51,12 +49,12 @@ class XMLWriter(object):
       #create households
       for h in root.iter("Household"):
         #collect data
-        father = self.getPerson(int(h.find("FatherID").text), familyMembers)
-        mother = self.getPerson(int(h.find("MotherID").text), familyMembers)
+        father = self.getPerson(int(h.get("fatherID")), familyMembers)
+        mother = self.getPerson(int(h.get("motherID")), familyMembers)
         children = []
 
-        for child in h.iter("ChildID"):
-          c = self.getPerson(int(child.text), familyMembers)
+        for child in h.iter("Child"):
+          c = self.getPerson(int(child.get("id")), familyMembers)
           children.append(c)
 
         #create household
@@ -116,27 +114,22 @@ class XMLWriter(object):
         tmp = ET.SubElement(m, "Person")
 
         #add data to current member's element
-        name = ET.SubElement(tmp, "Name")
-        name.text = member.getName()
+        tmp.set("name", member.getName())
+        tmp.set("familyName", member.getFamilyName())
 
-        fname = ET.SubElement(tmp, "Familyname")
-        fname.text = member.getFamilyName()
+        idString = "%d" % (member.getID())
 
-        i = ET.SubElement(tmp, "ID")
-        i.text = "%d" % (member.getID())
+        tmp.set("id", idString)
+        tmp.set("gender", member.getGender())
 
-        gend = ET.SubElement(tmp, "Gender")
-        gend.text = member.getGender()
-
+        #store optional data
         dateObject = member.getBirthDate()
         if dateObject:
-          date = ET.SubElement(tmp, "BirthDate")
-          date.text = dateObject.toString()
+          tmp.set("birthDate", dateObject.toString())
 
         passingDateObject = member.getPassingDate()
         if passingDateObject:
-          passingDate = ET.SubElement(tmp, "PassingDate")
-          passingDate.text = passingDateObject.toString()
+          tmp.set("passingDate", passingDateObject.toString())
 
       #add the households
       for household in households:
@@ -144,30 +137,29 @@ class XMLWriter(object):
         tmp = ET.SubElement(h, "Household")
 
         #add id's of people in household
-        father = ET.SubElement(tmp, "FatherID")
-        father.text = "%d" % (household.getFather().getID())
+        fidString = "%d" % (household.getFather().getID())
+        tmp.set("fatherID", fidString)
 
-        mother = ET.SubElement(tmp, "MotherID")
-        mother.text = "%d" % (household.getMother().getID())
+        midString = "%d" % (household.getMother().getID())
+        tmp.set("motherID", midString)
 
         #add wedding date if present
         dateObject = household.getWeddingDate()
         if dateObject:
-          date = ET.SubElement(tmp, "WeddingDate")
-          date.text = dateObject.toString()
+          tmp.set("weddingDate", dateObject.toString())
 
         #add divorce date if present
         dateObject = household.getDivorceDate()
         if dateObject:
-          divorceDate = ET.SubElement(tmp, "DivorceDate")
-          divorceDate.text = dateObject.toString()
+          tmp.set("divorceDate", dateObject.toString())
 
         children = ET.SubElement(tmp, "Children")
 
         #add all the children
         for child in household.getChildren():
-          childTmp = ET.SubElement(children, "ChildID")
-          childTmp.text = "%d" %(child.getID())
+          childTmp = ET.SubElement(children, "Child")
+          childID = "%d" % (child.getID())
+          childTmp.set("id", childID)
 
       for event in events:
         tmp = ET.SubElement(e, "Event")
