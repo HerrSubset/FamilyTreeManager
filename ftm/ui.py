@@ -163,4 +163,6 @@ class CLInterface(object):
   #Update functions
   ##################################################
   def printChronology(self, eventArray):
-    pass
+    for e in eventArray:
+      s = "%s %s" % (e.getDate().toString(), e.getDescription())
+      print s

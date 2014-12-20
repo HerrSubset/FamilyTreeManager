@@ -93,6 +93,9 @@ class FamilyManager(object):
     def getHouseholdProfile(self, fid, mid):
       return self.family.getHouseholdProfile(fid, mid)
 
+    def getChronology(self):
+      return self.family.getChronology()
+
     def simplePrint(self):
       return self.family.toStringSimple()
 
@@ -217,6 +220,36 @@ class Family(object):
 
       return res
 
+    def getChronology(self):
+      res = []
+
+      #add birthdays and deaths
+      for m in self.familyMembers:
+        birthDate = m.getBirthDate()
+        passingDate = m.getPassingDate()
+
+        if birthDate:
+          bdString = "o %s %s" % (m.getName(), m.getFamilyName())
+          bdEvent = Event(bdString, birthDate)
+          res.append(bdEvent)
+
+        if passingDate:
+          pdString = "+ %s %s" % (m.getName(), m.getFamilyName())
+          pdEvent = Event(pdString, passingDate)
+          res.append(pdEvent)
+
+
+      for h in self.households:
+        weddingDate = h.getWeddingDate()
+        coupleString = h.getParentsString()
+
+        if weddingDate:
+          e = Event(coupleString, weddingDate)
+          res.append(e)
+
+      res = self.sortEvents(res)
+      return res
+
     ##################################################
     #other functions
     ##################################################
@@ -254,6 +287,19 @@ class Family(object):
 
             if fid == fatherID and mid == motherID:
                 h.addChild(self.getMember(childID))
+
+    def sortEvents(self, events):
+      for i in range(0,len(events)):
+        for j in range(1, len(events)):
+          firstDate = events[j-1].getDate()
+          secondDate = events[j].getDate()
+
+          if secondDate.isEarlierThan(firstDate):
+            tmp = events[j-1]
+            events[j-1] = events[j]
+            events[j] = tmp
+
+      return events
 
     ##################################################
     #family boolean checkers
@@ -480,6 +526,16 @@ class Household(object):
 
     return res
 
+  def getParentsString(self):
+    #TODO: print bloodline member first
+    res = ""
+
+    motherName = "%s %s" % (self.mother.getName(), self.mother.getFamilyName())
+    fatherName = "%s %s" % (self.father.getName(), self.father.getFamilyName())
+    res = "%s X %s" % (fatherName, motherName)
+
+    return res
+
   def isMotherOf(self, childID, motherID):
     res = False
 
@@ -681,6 +737,20 @@ class Date(object):
     ##################################################
     #other functions
     ##################################################
+    def asInteger(self):
+      return (self.year * 10000) + (self.month * 100) + self.day
+
+    def compare(self, d):
+      return d.asInteger() - self.asInteger()
+
+    def isEarlierThan(self, d):
+      res = False
+
+      if self.asInteger() < d.asInteger():
+        res = True
+
+      return res
+
     def toString(self):
       day = ""
       if self.day < 10:
@@ -715,6 +785,7 @@ class Event(object):
   ##################################################
   def __init__(self, description, date):
     self.description = description
+    assert type(self.description) is str, "description is not a string"
     self.date = date
 
   ##################################################
