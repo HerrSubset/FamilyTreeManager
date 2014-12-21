@@ -43,6 +43,10 @@ class XMLWriter(object):
           pd = dom.Date(pString[0], pString[1], pString[2])
           tmp.setPassingDate(pd)
 
+        phoneNumber = p.get("phoneNumber")
+        if phoneNumber:
+          tmp.setPhoneNumber(phoneNumber)
+
         #append person
         familyMembers.append(tmp)
 
@@ -130,6 +134,10 @@ class XMLWriter(object):
         passingDateObject = member.getPassingDate()
         if passingDateObject:
           tmp.set("passingDate", passingDateObject.toString())
+
+        phoneNumber = member.getPhoneNumber()
+        if phoneNumber:
+          tmp.set("phoneNumber", phoneNumber)
 
       #add the households
       for household in households:

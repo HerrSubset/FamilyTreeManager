@@ -77,6 +77,7 @@ class CLInterface(object):
     mid = self.pm.getMotherID()
     startDateString = self.pm.getStartDateString()
     endDateString = self.pm.getEndDateString()
+    phoneNumber = self.pm.getPhoneNumber()
 
     #update person
     if pid:
@@ -88,6 +89,9 @@ class CLInterface(object):
 
       if endDateString:
         self.updatePassingDate(pid, endDateString)
+
+      if phoneNumber:
+        self.updatePhoneNumber(pid, phoneNumber)
 
     #update household
     else:
@@ -168,6 +172,10 @@ class CLInterface(object):
     tmp = divorceDate.split("/")
     self.family.setDivorceDate(fid, mid, tmp[0], tmp[1], tmp[2])
     print "Divorce date updated"
+
+  def updatePhoneNumber(self, pid, phoneNumber):
+    self.family.setPhoneNumber(pid, phoneNumber)
+    print "Phone number updated"
 
   ##################################################
   #Update functions

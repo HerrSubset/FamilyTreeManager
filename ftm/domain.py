@@ -74,6 +74,10 @@ class FamilyManager(object):
       if h:
         h.setDivorceDate(tmp)
 
+    def setPhoneNumber(self, pid, phoneNumber):
+      p = self.family.getMember(pid)
+      p.setPhoneNumber(phoneNumber)
+
     def addWeddingDate(self, fid, mid, day, month, year):
       h = self.family.getHousehold(fid, mid)
       tmp = Date(day, month, year)
@@ -646,6 +650,7 @@ class Person(object):
         self.address = address
         self.gender = gender
         self.ID = int(ID)
+        self.phoneNumber = None
 
     ##################################################
     #getters
@@ -664,6 +669,8 @@ class Person(object):
       return self.gender
     def getID(self):
       return self.ID
+    def getPhoneNumber(self):
+      return self.phoneNumber
 
     ##################################################
     #setters
@@ -680,6 +687,8 @@ class Person(object):
       self.familyName = familyName
     def setName(self, name):
       self.name = name
+    def setPhoneNumber(self, phoneNumber):
+      self.phoneNumber = phoneNumber
 
     ##################################################
     #other functions
@@ -695,19 +704,23 @@ class Person(object):
       bdString = ""
       pString = ""
       adString = ""
+      phString = ""
 
       #fill in optional variables
-      if self.birthDate != None:
+      if self.birthDate:
         bdString = "Birthday:\t%s\n" % (self.getBirthDate().toString())
 
-      if self.passingDate != None:
+      if self.passingDate:
         pString = "Passed on:\t%s\n" % (self.getPassingDate().toString())
 
-      if self.address != None:
+      if self.address:
         adString = "Address:\t%s\n" % (self.getAddress().toString())
 
+      if self.phoneNumber:
+        phString = "Phone:\t\t%s\n" % (self.phoneNumber)
+
       gnString = "Gender:\t\t%s\n" % (self.getGender())
-      return idString + nString + fnString + bdString + pString + adString + gnString
+      return idString + nString + fnString + bdString + pString + adString + gnString + phString
 
 
 
@@ -904,7 +917,7 @@ class ParametersContainer(object):
 
     #process arg variable
     try:
-      opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:D:")
+      opts, args = getopt.getopt(arg[2:], "n:N:i:f:m:g:F:d:D:p:")
     except getopt.GetoptError as err:
       # print help information and exit:
       print str(err)
@@ -930,6 +943,8 @@ class ParametersContainer(object):
         res["startDateString"] = a
       elif o == "-D":
         res["endDateString"] = a
+      elif o == "-p":
+        res["phoneNumber"] = a
       else:
         print "gave option" + o
         assert False, "Unhandeled option"
@@ -1021,6 +1036,15 @@ class ParametersContainer(object):
     res = None
     try:
       res = self.arguments["secondCommand"]
+    except KeyError as err:
+      res = None
+
+    return res
+
+  def getPhoneNumber(self):
+    res = None
+    try:
+      res = self.arguments["phoneNumber"]
     except KeyError as err:
       res = None
 
