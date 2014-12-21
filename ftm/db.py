@@ -9,7 +9,7 @@ import domain as dom
 ################################################################################
 class XMLWriter(object):
     def __init__(self):
-      pass
+        pass
 
     def load(self, savePath):
       tree = ET.parse(savePath)
@@ -179,10 +179,10 @@ class XMLWriter(object):
 
 
     def getPerson(self, personID, people):
-      res = None
+        res = None
 
-      for p in people:
-        if p.getID() == personID:
-          res = p
+        for p in people:
+            if p.getID() == personID:
+                res = p
 
-      return res
+        return res
