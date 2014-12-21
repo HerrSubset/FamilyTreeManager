@@ -81,7 +81,7 @@ class CLInterface(object):
 
         street = self.pm.getStreet()
         streetNo = self.pm.getStreetNumber()
-        zipcode = self.pm.getZipCode()
+        zipCode = self.pm.getZipCode()
         town = self.pm.getTown()
 
         #update person
@@ -98,10 +98,13 @@ class CLInterface(object):
             if phoneNumber:
                 self.updatePhoneNumber(pid, phoneNumber)
 
+            if street and streetNo and zipCode and town:
+                self.updateAddress(pid, street, streetNo, zipCode, town)
+
         #update household
         else:
-            if self.pm.getFatherID() and self.pm.getMotherID():
-                self.family.createCouple(self.pm.getFatherID(), self.pm.getMotherID())
+            if fid and mid:
+                self.family.createCouple(fid, mid)
                 print "Created Couple"
 
             if startDateString:
@@ -181,6 +184,10 @@ class CLInterface(object):
     def updatePhoneNumber(self, pid, phoneNumber):
         self.family.setPhoneNumber(pid, phoneNumber)
         print "Phone number updated"
+
+    def updateAddress(self, pid, street, streetNo, zipCode, town):
+        self.family.setAddress(pid, street, streetNo, zipCode, town)
+        print "Address updated"
 
     ##################################################
     #Update functions

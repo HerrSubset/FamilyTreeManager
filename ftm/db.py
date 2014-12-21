@@ -47,6 +47,14 @@ class XMLWriter(object):
         if phoneNumber:
           tmp.setPhoneNumber(phoneNumber)
 
+        for a in p.iter("Address"):
+            street = a.get("street")
+            streetNo = a.get("streetNumber")
+            town = a.get("town")
+            zipCode = a.get("zipCode")
+            ad = dom.Address(street, streetNo, zipCode, town)
+            tmp.setAddress(ad)
+
         #append person
         familyMembers.append(tmp)
 
@@ -138,6 +146,14 @@ class XMLWriter(object):
         phoneNumber = member.getPhoneNumber()
         if phoneNumber:
           tmp.set("phoneNumber", phoneNumber)
+
+        address = member.getAddress()
+        if address:
+            adElement = ET.SubElement(tmp, "Address")
+            adElement.set("street", address.getStreet())
+            adElement.set("streetNumber", address.getStreetNumber())
+            adElement.set("town", address.getTown())
+            adElement.set("zipCode", address.getZipCode())
 
       #add the households
       for household in households:

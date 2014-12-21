@@ -78,6 +78,12 @@ class FamilyManager(object):
         p = self.family.getMember(pid)
         p.setPhoneNumber(phoneNumber)
 
+    def setAddress(self, pid, street, streetNo, zipCode, town):
+        ad = Address(street, streetNo, zipCode, town)
+        p = self.family.getMember(pid)
+        if p:
+            p.setAddress(ad)
+
     def addWeddingDate(self, fid, mid, day, month, year):
         h = self.family.getHousehold(fid, mid)
         tmp = Date(day, month, year)
@@ -200,7 +206,7 @@ class Family(object):
             if h.isChild(childID):
                 res = h
 
-          return res
+        return res
 
     def getRootHousehold(self, household):
         res = household
@@ -230,7 +236,7 @@ class Family(object):
             if parentID in (h.getFather().getID(), h.getMother().getID()):
                 res = h
 
-          return res
+        return res
 
     def getHousehold(self, fid, mid):
         res = None
@@ -239,7 +245,7 @@ class Family(object):
             if mid == h.getMother().getID() and fid == h.getFather().getID():
                 res = h
 
-          return res
+        return res
 
     def getChronology(self):
         res = []
@@ -377,7 +383,8 @@ class Family(object):
 
         return res
 
-    def isMother(self, motherID):       res = False
+    def isMother(self, motherID):
+        res = False
 
         for h in self.households:
             if h.getMother().getID() == motherID:
@@ -475,7 +482,7 @@ class Family(object):
             for child in rootHousehold.getChildren():
                 res = res + self.getTreeString(child.getID(), level + 1)
 
-         return res
+        return res
 
     def getMemberOverview(self):
         res = "\n"
@@ -944,7 +951,14 @@ class ParametersContainer(object):
                 res["endDateString"] = a
             elif o == "-p":
                 res["phoneNumber"] = a
-
+            elif o == "-s":
+                res["street"] = a
+            elif o == "-S":
+                res["streetNumber"] = a
+            elif o == "-t":
+                res["town"] = a
+            elif o == "-T":
+                res["zipCode"] = a
             else:
                 print "gave option" + o
                 assert False, "Unhandeled option"
@@ -994,6 +1008,19 @@ class ParametersContainer(object):
 
     def getSavePath(self):
         return self.getDictionaryValue("savePath")
+
+    def getTown(self):
+        return self.getDictionaryValue("town")
+
+    def getZipCode(self):
+        return self.getDictionaryValue("zipCode")
+
+    def getStreetNumber(self):
+        return self.getDictionaryValue("streetNumber")
+
+    def getStreet(self):
+        return self.getDictionaryValue("street")
+
 
     def getDictionaryValue(self, key):
         res = None
