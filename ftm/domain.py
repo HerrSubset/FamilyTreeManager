@@ -934,7 +934,7 @@ class ParametersContainer(object):
             if o == "-n":
                 res["name"] = a
             elif o == "-N":
-                res["familyname"] = a
+                res["familyName"] = a
             elif o == "-i":
                 res["id"] = int(a)
             elif o == "-f":
